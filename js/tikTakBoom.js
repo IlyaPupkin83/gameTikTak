@@ -199,7 +199,7 @@ tikTakBoom = {
 	comparationWrongAnswer(wrongAnswer1, wrongAnswer2) {
 		return (parseInt(wrongAnswer1) > parseInt(wrongAnswer2)) ? true : false;
 	},
-
+//
 	//функция сортировки пузырьком
 	bubbleSort(players, comparationWrongAnswer) {
 		const n = players.length;
