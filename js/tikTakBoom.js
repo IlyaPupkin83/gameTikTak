@@ -134,6 +134,7 @@ tikTakBoom = {
 	},
 
 	turnOn() {
+		debugger;
 		if (this.stop !== 0) {
 			debugger;
 			this.beforeTimer();
@@ -150,7 +151,7 @@ tikTakBoom = {
 			this.players[this.stateLast - 1].time += 5;
 			clearTimeout(this.timerTimeout);
 		} else {
-			// debugger;
+			debugger;
 			this.gameStatusField.innerText = 'Неверно!';
 			this.players[this.stateLast - 1].time -= 5;
 			clearTimeout(this.timerTimeout);
@@ -158,7 +159,7 @@ tikTakBoom = {
 			this.playersWrongAnswer += 1;
 			this.players[this.stateLast - 1].wrongAnswer = this.playersWrongAnswer;
 			if (this.playersWrongAnswer >= this.maxWrongAnswers) {
-				// debugger;
+				debugger;
 				this.gameStatusField.innerText += ` Игрок №${this.players[this.stateLast - 1].playerNumber} дал 3 неверных ответа и выбывает из игры!`;
 				this.players.splice(this.stateLast - 1, 1);
 				console.log(this.players);
@@ -264,23 +265,38 @@ tikTakBoom = {
 	},
 
 	penalti() {
-		this.playerWrongAnswerNULL()
+		this.playerWrongAnswerNULL();
+		this.playerTimeNULL();
+		this.boomTimer = 5;
+		this.playerNewTime();
 		debugger;
 		this.stop = 1;
 		this.state = 0;
-		this.boomTimer = 600;
-		this.playerNumber = this.players.length;
+		this.playersWrongAnswer = 0;
+		this.maxWrongAnswers = 0;
+		this.countOfPlayers = this.players.length;
 		clearInterval(this.timeClear);
 		clearTimeout(this.timerTimeout);
 		this.run();
 		this.stopGame();
-		this.gameStatusField.innerText = ``;
-		this.gameStatusField.innerText = `Приготовьтесь...`;
+		this.gameStatusField.innerText += `. Приготовьтесь...`;
 	},
 
 	playerWrongAnswerNULL() {
 		this.players.forEach(el =>
 			el.wrongAnswer = 0
+		);
+	},
+
+	playerTimeNULL() {
+		this.players.forEach(el =>
+			el.time = 0
+		);
+	},
+
+	playerNewTime() {
+		this.players.forEach(el =>
+			el.time = this.boomTimer
 		);
 	},
 
