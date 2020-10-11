@@ -192,6 +192,8 @@ tikTakBoom = {
 			this.players = null;
 			this.players = [];
 			this.finish('won');
+			console.log(this.players);
+			this.winOrPenalti();
 		}
 	},
 
@@ -199,7 +201,7 @@ tikTakBoom = {
 	comparationWrongAnswer(wrongAnswer1, wrongAnswer2) {
 		return (parseInt(wrongAnswer1) > parseInt(wrongAnswer2)) ? true : false;
 	},
-//
+	//
 	//функция сортировки пузырьком
 	bubbleSort(players, comparationWrongAnswer) {
 		const n = players.length;
@@ -216,6 +218,59 @@ tikTakBoom = {
 				}
 			}
 		}
+	},
+
+	winOrPenalti() {
+		const n = this.players.length;
+		this.playersForPenalti = [];
+		this.playersForPenalti.push(this.players[0]);
+		this.TempTextForPenalti = `Игра в пенальти для игроков №${this.players[0].playerNumber}, `;
+
+		for (let i = 1; i < n - 1; i++) {
+			// сравниваем элементы
+			if (tikTakBoom.comparationWrongAnswer(this.players[1].wrongAnswer, this.players[0].wrongAnswer)) {
+				// объявляем одного победителя
+				this.resultPlayer = 'won';
+				this.gameStatusField.innerText = `Игрок №${this.players[i].playerNumber},`;
+				this.stop = 0;
+				this.boomTimer = 0;
+				this.preTime = 0;
+				this.state = 0;
+				this.playerNumber = 1;
+				this.players = null;
+				this.players = [];
+				this.pretimer();
+				this.timer();
+				this.finish('won');
+			} else {
+				debugger;
+				if (tikTakBoom.comparationWrongAnswer(this.players[i + 1].wrongAnswer, this.players[i].wrongAnswer)) {
+					// игра в пенальти
+					this.playersForPenalti.push(this.players[i]);
+					this.gameStatusField.innerText = '';
+					this.gameStatusField.innerText += `${this.TempTextForPenalti}${this.players[i].playerNumber}!`;
+					this.penalti();
+				} else {
+					this.playersForPenalti.push(this.players[i]);
+					this.TempTextForPenalti += `${this.players[i].playerNumber}, `;
+				}
+			}
+		}
+	},
+
+	penalti() {
+		this.stop = 0;
+		this.boomTimer = 6;
+		this.state = 0;
+		this.playerNumber = this.players.length + 1;
+		this.pretimer();
+		this.timer();
+		this.state = 1;
+		this.rightAnswers = 0;
+		this.playersWrongAnswer = 0;
+		this.pretimer();
+		this.timer();
+		this.turnOn();
 	},
 
 
@@ -300,7 +355,11 @@ tikTakBoom = {
 
 		}
 		if (result === 'won') {
-			this.gameStatusField.innerText = `Вы выиграли!`;
+			if (this.resultPlayer = 'won') {
+				this.gameStatusField.innerText += ` вы выиграли!`;
+			} else {
+				this.gameStatusField.innerText = `Вы выиграли!`;
+			}
 		}
 	},
 	beforeTimer() {
