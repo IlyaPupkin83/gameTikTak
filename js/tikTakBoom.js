@@ -60,7 +60,7 @@ tikTakBoom = {
 			alert("Есть ошибки!");
 		}
 
-	},
+	}
 
 
 	showDom() {
