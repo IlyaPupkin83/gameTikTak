@@ -49,6 +49,7 @@ tikTakBoom = {
 		this.maxWrongAnswers = 3;
 		this.playersWrongAnswer = 0;
 		this.playerNumber = 1;
+		this.penalti = 0;
 
 		try {
 			this.OneRight();
@@ -64,6 +65,7 @@ tikTakBoom = {
 
 
 	showDom() {
+		debugger;
 		this.buttonStart.classList.add('game-card__close');
 		this.cardPlayers.classList.add('game-card__close');
 		this.cardTimer.classList.add('game-card__close');
@@ -82,6 +84,7 @@ tikTakBoom = {
 			this.players = null;
 			this.players = [];
 			this.createPlayers();
+			console.log(this.players);
 			this.showDom();
 			this.gameStatusField.innerText = ``;
 			this.gameStatusField.innerText = `Приготовьтесь...`;
@@ -132,8 +135,9 @@ tikTakBoom = {
 	},
 
 	turnOn() {
+		debugger;
 		if (this.stop !== 0) {
-			// debugger;
+			debugger;
 			this.beforeTimer();
 			this.gameStatusField.innerText += ` Вопрос игроку №${this.players[this.state - 1].playerNumber}`;
 			this.stateLast = this.state;
@@ -145,10 +149,13 @@ tikTakBoom = {
 		if (this.currentTask[value].result) {
 			this.gameStatusField.innerText = 'Верно!';
 			this.rightAnswers += 1;
-			this.players[this.stateLast - 1].time += 5;
+			debugger;
+			(this.penalti != 1) ? (this.players[this.stateLast - 1].time += 5) :
+				(this.players[this.stateLast - 1].time = 5);
+			debugger;
 			clearTimeout(this.timerTimeout);
 		} else {
-			// debugger;
+			debugger;
 			this.gameStatusField.innerText = 'Неверно!';
 			this.players[this.stateLast - 1].time -= 5;
 			clearTimeout(this.timerTimeout);
@@ -156,44 +163,42 @@ tikTakBoom = {
 			this.playersWrongAnswer += 1;
 			this.players[this.stateLast - 1].wrongAnswer = this.playersWrongAnswer;
 			if (this.playersWrongAnswer >= this.maxWrongAnswers) {
-				// debugger;
-				this.gameStatusField.innerText += ` Игрок №${this.players[this.stateLast - 1].playerNumber} дал 3 неверных ответа и выбывает из игры!`;
+				debugger;
+				this.gameStatusField.innerText += ` Игрок №${this.players[this.stateLast - 1].playerNumber} выбывает из игры!`;
 				this.players.splice(this.stateLast - 1, 1);
+				console.log(this.players);
 				this.countOfPlayers -= 1;
 				if (this.countOfPlayers === 1) {
-					this.result = 'lose';
-					this.stop = 0;
-					this.boomTimer = 0;
-					this.preTime = 0;
-					this.state = 0;
-					this.playerNumber = 1;
-					this.players = null;
-					this.players = [];
-					this.finish();
+					this.penalti ? (this.result = 'won') : (this.result = 'lose');
+					this.stopGame();
+					this.finish(this.result);
 				} else {
 					this.state -= 1;
 				};
 			}
 		}
 		if (this.rightAnswers < this.needRightAnswers) {
+			debugger;
 			if ((this.tasks.length === 0) || (this.countOfPlayers === 1)) {
-				this.finish('lose');
+				if (this.countOfPlayers === 1) {
+					this.penalti ? (this.result = 'won') : (this.result = 'lose');
+					this.finish(this.result);
+				}
 			} else {
 				this.turnOn();
 			}
 		} else {
-			this.bubbleSort(this.players, this.comparationWrongAnswer);
-			this.result = 'won';
-			this.stop = 0;
-			this.boomTimer = 0;
-			this.preTime = 0;
-			this.state = 0;
-			this.playerNumber = 1;
-			this.players = null;
-			this.players = [];
-			this.finish('won');
-			console.log(this.players);
-			this.winOrPenalti();
+			debugger;
+			if (this.penalti != 1) {
+				this.bubbleSort(this.players, this.comparationWrongAnswer);
+				console.log(this.players);
+				this.winOrPenalti();
+			} else {
+				debugger;
+				this.result = 'won';
+				this.stopGame();
+				this.finish(this.result);
+			}
 		}
 	},
 
@@ -223,56 +228,93 @@ tikTakBoom = {
 	winOrPenalti() {
 		const n = this.players.length;
 		this.playersForPenalti = [];
-		this.playersForPenalti.push(this.players[0]);
-		this.TempTextForPenalti = `Игра в пенальти для игроков №${this.players[0].playerNumber}, `;
+		//this.playersForPenalti.push(this.players[0]);
+		this.TempTextForPenalti = `Игра в пенальти для игроков №`;
 
-		for (let i = 1; i < n - 1; i++) {
+		for (let i = 0; i < n - 1; i++) {
 			// сравниваем элементы
 			if (tikTakBoom.comparationWrongAnswer(this.players[1].wrongAnswer, this.players[0].wrongAnswer)) {
 				// объявляем одного победителя
+				debugger;
 				this.resultPlayer = 'won';
 				this.gameStatusField.innerText = `Игрок №${this.players[i].playerNumber},`;
-				this.stop = 0;
-				this.boomTimer = 0;
-				this.preTime = 0;
-				this.state = 0;
-				this.playerNumber = 1;
-				this.players = null;
-				this.players = [];
-				this.pretimer();
-				this.timer();
+				i = n - 1;
+				this.stopGame();
 				this.finish('won');
 			} else {
 				debugger;
 				if (tikTakBoom.comparationWrongAnswer(this.players[i + 1].wrongAnswer, this.players[i].wrongAnswer)) {
 					// игра в пенальти
 					this.playersForPenalti.push(this.players[i]);
+					//this.players = [];
+					//this.players = this.playersForPenalti;
+					this.players = this.playersForPenalti;
 					this.gameStatusField.innerText = '';
 					this.gameStatusField.innerText += `${this.TempTextForPenalti}${this.players[i].playerNumber}!`;
-					this.penalti();
+					i = n - 1;
+					debugger;
+					if (this.penalti != 1) {
+						debugger;
+						this.penalTi();
+					};
 				} else {
-					this.playersForPenalti.push(this.players[i]);
-					this.TempTextForPenalti += `${this.players[i].playerNumber}, `;
+					if (this.players[i].wrongAnswer === this.players[n - 1].wrongAnswer) {
+						this.gameStatusField.innerText = '';
+						this.gameStatusField.innerText += `${this.TempTextForPenalti}1-${this.players[n - 1].playerNumber}!`;
+						i = n - 1;
+						debugger;
+						if (this.penalti != 1) {
+							debugger;
+							this.penalTi();
+						};
+					} else {
+						this.playersForPenalti.push(this.players[i]);
+						this.TempTextForPenalti += `${this.players[i].playerNumber}, `;
+						console.log(this.playersForPenalti);
+						console.log(this.players);
+					}
 				}
 			}
 		}
 	},
 
-	penalti() {
-		this.stop = 0;
-		this.boomTimer = 6;
+	penalTi() {
+		this.playerWrongAnswerNULL();
+		this.playerTimeNULL();
+		this.boomTimer = 5;
+		this.playerNewTime();
+		debugger;
+		this.stop = 1;
 		this.state = 0;
-		this.playerNumber = this.players.length + 1;
-		this.pretimer();
-		this.timer();
-		this.state = 1;
-		this.rightAnswers = 0;
 		this.playersWrongAnswer = 0;
-		this.pretimer();
-		this.timer();
-		this.turnOn();
+		this.maxWrongAnswers = 0;
+		this.needRightAnswers = 19;
+		this.countOfPlayers = this.players.length;
+		clearInterval(this.timeClear);
+		clearTimeout(this.timerTimeout);
+		this.run();
+		this.stopGame();
+		this.gameStatusField.innerText += `. Приготовьтесь...`;
+		this.penalti = 1;
 	},
 
+	playerWrongAnswerNULL() {
+		this.players.forEach(el =>
+			el.wrongAnswer = 0
+		);
+	},
+
+	playerTimeNULL() {
+		this.players.forEach(el =>
+			el.time = 0
+		);
+	},
+
+	playerNewTime() {
+		this.players.forEach(el =>
+			el.time = this.boomTimer
+		);
+	},
 
 	printQuestion(task) {
 		this.textFieldQuestion.innerText = task.question;
@@ -355,14 +397,23 @@ tikTakBoom = {
 
 		}
 		if (result === 'won') {
-			if (this.resultPlayer = 'won') {
-				this.gameStatusField.innerText += ` вы выиграли!`;
+			debugger;
+			if (this.penalti) {
+				debugger;
+				(this.stop === 1) ? (this.gameStatusField.innerText += ` Игрок №${this.players[this.stateLast - 1].playerNumber} выиграл!`) :
+					(this.gameStatusField.innerText += ` Игрок №${this.players[this.stateLast - 2].playerNumber} выиграл!`);
 			} else {
-				this.gameStatusField.innerText = `Вы выиграли!`;
+				if (this.resultPlayer = 'won') {
+					this.gameStatusField.innerText += ` вы выиграли!`;
+				} else {
+					this.gameStatusField.innerText = `Вы выиграли!`;
+				}
 			}
 		}
 	},
+
 	beforeTimer() {
+		debugger;
 		this.gameQuest.classList.add('game-card__close');
 		var i = this.preTime;
 		this.timeClear = setInterval(() => {
@@ -379,6 +430,7 @@ tikTakBoom = {
 		}, 1000);
 
 	},
+
 	timer() {
 		this.boomTimer = this.players[this.stateLast - 1].time;
 		this.boomTimer -= 1;
@@ -390,8 +442,8 @@ tikTakBoom = {
 		this.timerField.innerText = `${min}:${sec}`;
 		if (this.boomTimer > 0) {
 			this.timerTimeout = setTimeout(() => {
-					this.timer();
-				},
+				this.timer();
+			},
 				1000,
 			);
 		} else {
@@ -411,13 +463,13 @@ tikTakBoom = {
 				}
 			}
 			//console.log(OneRightOk + " vopr: " + parseInt(i+1));
-			if (OneRightOk > 1) throw new Error(`В вопросе ${i+1} больше одного верного ответа!`);
+			if (OneRightOk > 1) throw new Error(`В вопросе ${i + 1} больше одного верного ответа!`);
 		}
 	},
 
 	questionOk() {
 		for (let i = 0; i < this.tasks.length; i++) {
-			if ('question' in this.tasks[i]) {} else throw new Error(`В вопросе ${i+1} отсутствует вопрос!`);
+			if ('question' in this.tasks[i]) { } else throw new Error(`В вопросе ${i + 1} отсутствует вопрос!`);
 		}
 	},
 
@@ -425,11 +477,11 @@ tikTakBoom = {
 		for (let i = 0; i < this.tasks.length; i++) {
 			let ques = this.tasks[i].question;
 			if (!ques.includes(" ")) {
-				alert(`В вопросе ${i+1} отсутствует вопрос!`)
+				alert(`В вопросе ${i + 1} отсутствует вопрос!`)
 			}
 			for (let j = 1; j <= 10; j++) {
 				if (eval(`this.tasks[i].answer${j}`)) {
-					if (eval(`this.tasks[i].answer${j}.value`) === "") throw new Error(`В вопросе ${i+1} отсутствует ответ!`);
+					if (eval(`this.tasks[i].answer${j}.value`) === "") throw new Error(`В вопросе ${i + 1} отсутствует ответ!`);
 				}
 			}
 		}
